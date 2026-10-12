@@ -1,0 +1,4 @@
+#!/system/bin/sh
+# hy300-clean: vendor qw neutralised
+log -t hy300-clean "blocked qw $*"
+exit 0

@@ -1,0 +1,6 @@
+id=hy300-clean
+name=HY300 clean
+version=v14
+versionCode=14
+author=local
+description=Stubs qw, appsdisable, gmsopt, preinstall, runin.sh and product_update_oem.sh; removes StoreOS, the OTA updater and the screensaver; patches the vendor SELinux policy and enforces it; Google NTP and connectivity checks instead of Chinese servers; remote input button toggles HDMI, cast button toggles Settings, holding the mouse button opens keystone adjustment.

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="local.hy300clean.networkstack.overlay"
+    android:versionCode="1" android:versionName="1">
+    <application android:hasCode="false"/>
+    <uses-sdk android:minSdkVersion="34" android:targetSdkVersion="34"/>
+    <!-- Overrides the vendor's www.google.cn connectivity checks with Google's standard endpoints. -->
+    <overlay android:targetPackage="com.android.networkstack"
+        android:targetName="NetworkStackConfig"
+        android:isStatic="true" android:priority="100"/>
+</manifest>

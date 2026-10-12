@@ -1,0 +1,6 @@
+id=hy300-a11yfix
+name=HY300 accessibility fix
+version=v1
+versionCode=1
+author=local
+description=Patched services.jar: removes the vendor hook that wipes every accessibility service on each focus change. Also removes the vendor Netflix/YouTube accessibility helpers.

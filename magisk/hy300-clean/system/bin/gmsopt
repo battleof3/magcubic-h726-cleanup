@@ -1,0 +1,4 @@
+#!/system/bin/sh
+# hy300-clean: vendor gmsopt neutralised
+log -t hy300-clean "blocked gmsopt $*"
+exit 0

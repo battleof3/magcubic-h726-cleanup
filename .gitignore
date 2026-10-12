@@ -1,0 +1,26 @@
+# Device backups and anything pulled from a projector
+backup/
+*.img
+*.fex
+fex/
+payload.apk
+packages.txt
+denials.log
+# Downloads and working directories the README creates in the repo root
+*.apk
+*.apkm
+!magisk/hy300-clean/system/product/overlay/NetworkStackConfigAosp.apk
+update.img
+*.iso
+mk/
+chk/
+x/
+proj/
+# Downloaded tools, build output and local signing keys
+.tools/
+build/
+*.p12
+*.zip
+__pycache__/
+a11yfix/module/system/
+magisk/hy300-clean/keystone.dex

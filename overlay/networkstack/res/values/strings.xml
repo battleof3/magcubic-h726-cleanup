@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="config_captive_portal_http_url" translatable="false">http://connectivitycheck.gstatic.com/generate_204</string>
+    <string name="config_captive_portal_https_url" translatable="false">https://www.google.com/generate_204</string>
+    <string-array name="config_captive_portal_fallback_urls" translatable="false">
+        <item>http://www.google.com/gen_204</item>
+        <item>http://play.googleapis.com/generate_204</item>
+    </string-array>
+</resources>

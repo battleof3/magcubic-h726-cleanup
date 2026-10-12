@@ -1,0 +1,4 @@
+#!/system/bin/sh
+# hy300-clean: vendor appsdisable neutralised
+log -t hy300-clean "blocked appsdisable $*"
+exit 0

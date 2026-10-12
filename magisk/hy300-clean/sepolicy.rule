@@ -1,0 +1,100 @@
+# hy300-clean: SELinux policy gaps in the Magcubic H726 firmware (build 20260318).
+# The vendor ships permissive (androidboot.selinux=permissive), hiding these. Each rule
+# below is a denial observed on 2026-10-11 for hardware or system function; anything
+# not needed for that is left denied, and the deliberate denials are dontaudit'ed.
+
+# --- Audio: HAL and audioserver read their config from /oem (remote.txt symlink) ---
+allow hal_audio_default vendor_data_file lnk_file read
+allow hal_audio_default oemfs dir { search getattr }
+allow hal_audio_default oemfs file { getattr open read }
+allow hal_audio_default device dir { read watch }
+allow audioserver oemfs dir { search getattr }
+allow audioserver oemfs file { getattr open read }
+allow hal_tv_cec_default oemfs dir { search getattr }
+allow hal_tv_cec_default oemfs file { getattr open read }
+allow vendor_init oemfs dir { search getattr }
+allow { kernel lmkd } oemfs dir search
+# Accelerometer driver (kworker) saves its calibration to /oem/gsensor_data (auto-keystone).
+allow kernel oemfs dir { add_name search write }
+allow kernel oemfs file { create getattr open read write }
+
+# --- Projector hardware: fan, GPIOs, mode (system_server) and autofocus (system_app) ---
+allow system_server sysfs file { getattr open read write }
+allow system_server vfat dir { search getattr }
+allow system_server vfat file { getattr open read write }
+allow system_server default_prop property_service set
+allow system_server zygote process setsched
+allow system_app sysfs file { getattr open read write }
+allow system_app serialno_prop file { getattr map open read }
+allow system_app default_prop property_service set
+allow system_app usb_device dir { getattr open read search }
+
+# --- HDMI input (tvserver) ---
+allow tvserver drm_heap_device chr_file { getattr ioctl open read write }
+allow tvserver sunxi_soc_device chr_file { getattr ioctl open read }
+allow tvserver sysfs dir { add_name search write }
+allow tvserver sysfs file { create getattr open write }
+allow tvserver tvserver capability dac_read_search
+allow tvserver vendor_default_prop property_service set
+# Saves panel/keystone configuration to /oem/panel_config.ini.
+allow tvserver oemfs dir { add_name getattr remove_name search write }
+allow tvserver oemfs file { create getattr open read rename setattr unlink write }
+
+# --- Other HALs ---
+allow hal_graphics_composer_default { default_prop system_prop } file { getattr map open read }
+allow hal_graphics_composer_default { default_prop system_prop } property_service set
+allow hal_sensors_default sysfs_sound dir search
+allow hal_sensors_default sysfs_sound file { getattr open read }
+allow hal_sensors_default system_prop property_service set
+allow hal_wifi_default persist_vendor_debug_wifi_prop file { getattr map open read }
+allow hal_wifi_default vendor_default_prop property_service set
+# The power HAL reads /proc/<pid>/cmdline of every process to spot the foreground app.
+allow hal_power_default domain dir { getattr search }
+allow hal_power_default domain file { getattr open read }
+# App processes carry MLS categories (s0:cN,cM); reading their /proc needs MLS trust,
+# as system_server already has.
+typeattribute hal_power_default mlstrustedsubject
+allow hal_power_default sysfs_thermal dir { getattr open read search }
+allow hal_power_default sysfs_thermal file { getattr open read }
+allow hal_power_default hal_power_default capability net_admin
+
+# --- Boot-time configuration ---
+allow vendor_init { bluetooth_prop build_prop default_prop timezone_prop } property_service set
+allow vendor_init audio_rw_data_file dir getattr
+allow init sysfs file { open write }
+allow init debugfs_mmc file { open read setattr }
+allow storaged debugfs_mmc file read
+allow bootanim system_prop property_service set
+allow bootanim system_data_file dir search
+allow netd proc_net dir add_name
+allow netd proc_net file create
+allow atrace debugfs_tracing_debug file write
+allow mediaprovider_app property_socket sock_file write
+allow mediaprovider_app init unix_stream_socket connectto
+allow mediaprovider_app default_prop property_service set
+allow mediacodec system_prop file { getattr map open read }
+
+# --- Deliberately denied, kept quiet ---
+# Vendor init chmod'ing /oem (it is already world-writable vfat).
+dontaudit vendor_init oemfs dir setattr
+# Boot animation probing a user's private data directory.
+dontaudit bootanim system_data_file dir search
+# Apps (Projectivy, Magisk) probing /data/local/tests: normal sandbox denial.
+dontaudit untrusted_app shell_test_data_file dir search
+# Vendor media framework tries to set a property from inside app processes.
+dontaudit { untrusted_app untrusted_app_27 untrusted_app_30 } property_socket sock_file write
+# Vendor forcing TLS-only network ADB.
+dontaudit vendor_init system_adbd_prop property_service set
+# Writes to sysfs/proc nodes that don't exist on this board, and kernel lockdown.
+dontaudit { init vendor_init } { sysfs sysfs_zram sysfs_devices_system_cpu proc } dir add_name
+dontaudit { init vendor_init } { sysfs sysfs_zram sysfs_devices_system_cpu proc } file create
+dontaudit init debugfs filesystem mount
+dontaudit { init toolbox } { init toolbox } lockdown integrity
+# Read-ahead daemon would read keystore, Wi-Fi credentials and app data: denied.
+dontaudit prefetch * * *
+# Stubbed vendor services (qw root daemon, factory/OTA shell scripts).
+dontaudit qw * * *
+dontaudit shell system_file file entrypoint
+dontaudit shell shell capability { dac_override dac_read_search }
+dontaudit { extra_free_kbytes toolbox } shell_data_file dir { getattr search write }
+dontaudit extra_free_kbytes extra_free_kbytes capability dac_override
